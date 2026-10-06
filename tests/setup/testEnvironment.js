@@ -1,0 +1,9 @@
+process.env.NODE_ENV = 'test';
+process.env.DATABASE_PATH = ':memory:';
+process.env.JWT_SECRET = 'integration-test-secret';
+process.env.BASE_URL = 'http://localhost:3001';
+process.env.FRONTEND_URL = 'http://localhost:3001';
+process.env.ECPAY_MERCHANT_ID = '3002607';
+process.env.ECPAY_HASH_KEY = 'pwFHCqoQZGmho4w6';
+process.env.ECPAY_HASH_IV = 'EkRm7iFT261dpevs';
+process.env.ECPAY_ENV = 'staging';

@@ -1,0 +1,37 @@
+{
+  "name": "backend-project",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+    "start": "npm run css:build && node server.js",
+    "dev:server": "node server.js",
+    "dev:css": "npx @tailwindcss/cli -i public/css/input.css -o public/css/output.css --watch",
+    "css:build": "npx @tailwindcss/cli -i public/css/input.css -o public/css/output.css --minify",
+    "openapi": "node generate-openapi.js",
+    "test": "vitest run",
+    "test:unit": "vitest run --config vitest.config.js",
+    "test:integration": "vitest run --config vitest.integration.config.js",
+    "test:e2e": "playwright test --config playwright.config.js",
+    "test:acceptance": "vitest run --config vitest.acceptance.config.js",
+    "postman": "npm run openapi && node scripts/generate-postman.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "ejs": "^5.0.1",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@tailwindcss/cli": "^4.2.2",
+    "openapi-to-postmanv2": "^6.3.3",
+    "supertest": "^7.2.2",
+    "swagger-jsdoc": "^6.3.0",
+    "tailwindcss": "^4.2.2",
+    "vitest": "^2.1.9"
+  }
+}
