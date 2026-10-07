@@ -3,19 +3,13 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../database');
 const authMiddleware = require('../middleware/authMiddleware');
 const adminMiddleware = require('../middleware/adminMiddleware');
+const { isNonEmptyString, isOptionalString } = require('../utils/validators');
 
 const router = express.Router();
 
 // All admin product routes require auth + admin
 router.use(authMiddleware, adminMiddleware);
 
-function isNonEmptyString(value) {
-  return typeof value === 'string' && value.trim() !== '';
-}
-
-function isOptionalString(value) {
-  return value === undefined || value === null || typeof value === 'string';
-}
 
 /**
  * @openapi

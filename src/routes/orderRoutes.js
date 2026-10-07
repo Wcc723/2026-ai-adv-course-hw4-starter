@@ -15,14 +15,11 @@ const {
   createOrderFromCart
 } = require('../services/orderService');
 const { isTradePaid, markOrderPaid } = require('../services/paymentService');
+const { isNonEmptyString } = require('../utils/validators');
 
 const router = express.Router();
 
 router.use(authMiddleware);
-
-function isNonEmptyString(value) {
-  return typeof value === 'string' && value.trim() !== '';
-}
 
 // Mock payment is test-only; otherwise any member could mark their own order as paid
 function testEnvOnly(req, res, next) {

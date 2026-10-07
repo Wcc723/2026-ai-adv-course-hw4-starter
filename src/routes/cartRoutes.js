@@ -2,6 +2,7 @@ const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 const db = require('../database');
+const { parsePositiveInteger } = require('../utils/validators');
 
 const router = express.Router();
 
@@ -43,14 +44,6 @@ function dualAuth(req, res, next) {
     error: 'UNAUTHORIZED',
     message: '請提供有效的登入 Token 或 X-Session-Id'
   });
-}
-
-// Accept integers or integer strings only ("3abc", 1.9 and [5] are rejected)
-function parseQuantity(value) {
-  if (typeof value === 'string' && /^\d+$/.test(value)) {
-    return Number(value);
-  }
-  return value;
 }
 
 function getOwnerCondition(req) {
@@ -199,8 +192,8 @@ router.post('/', dualAuth, (req, res) => {
     return res.status(400).json({ data: null, error: 'VALIDATION_ERROR', message: 'productId 為必填欄位' });
   }
 
-  const qty = parseQuantity(quantity);
-  if (!Number.isInteger(qty) || qty < 1) {
+  const qty = parsePositiveInteger(quantity);
+  if (qty === null) {
     return res.status(400).json({ data: null, error: 'VALIDATION_ERROR', message: 'quantity 必須為正整數' });
   }
 
@@ -300,9 +293,9 @@ router.patch('/:itemId', dualAuth, (req, res) => {
   const { itemId } = req.params;
   const { quantity } = req.body;
 
-  const qty = parseQuantity(quantity);
-  if (!Number.isInteger(qty) || qty < 1) {
-    return res.status(400).json({ data: null, error: 'VALIDATION_ERROR', message: 'quantity 必須為正整數' });
+  const qty = Number(quantity);
+  if (Number.isNaN(qty)) {
+    return res.status(400).json({ data: null, error: 'VALIDATION_ERROR', message: 'quantity 必須為數字' });
   }
 
   const owner = getOwnerCondition(req);
