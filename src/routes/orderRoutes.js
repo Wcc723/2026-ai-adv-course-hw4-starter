@@ -1,22 +1,23 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid');
 const db = require('../database');
 const authMiddleware = require('../middleware/authMiddleware');
 const { queryTradeInfo, verifyCheckMacValue, ECPAY_CONFIG } = require('../utils/ecpay');
 const { SHIPPING_METHODS, calculateShipping } = require('../utils/shipping');
+const {
+  serializeOrder,
+  findOrderById,
+  findOrderForUser,
+  listOrdersForUser,
+  getOrderItems,
+  getOrderItemSummaries,
+  getCheckoutItems,
+  findInsufficientItems,
+  createOrderFromCart
+} = require('../services/orderService');
 
 const router = express.Router();
 
 router.use(authMiddleware);
-
-function generateOrderNo() {
-  // Use Taipei date so the order number matches ECPay MerchantTradeDate
-  const dateStr = new Date()
-    .toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' })
-    .replace(/-/g, '');
-  const random = uuidv4().slice(0, 5).toUpperCase();
-  return `ORD-${dateStr}-${random}`;
-}
 
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim() !== '';
@@ -28,14 +29,6 @@ function testEnvOnly(req, res, next) {
     return res.status(404).json({ data: null, error: 'NOT_FOUND', message: '找不到該資源' });
   }
   next();
-}
-
-function serializeOrder(order) {
-  return {
-    ...order,
-    is_remote_area: Boolean(order.is_remote_area),
-    is_express: Boolean(order.is_express)
-  };
 }
 
 /**
@@ -163,14 +156,7 @@ router.post('/', (req, res) => {
     });
   }
 
-  // Get cart items with product info
-  const cartItems = db.prepare(
-    `SELECT ci.id, ci.product_id, ci.quantity,
-            p.name as product_name, p.price as product_price, p.stock as product_stock
-     FROM cart_items ci
-     JOIN products p ON ci.product_id = p.id
-     WHERE ci.user_id = ?`
-  ).all(userId);
+  const cartItems = getCheckoutItems(userId);
 
   if (cartItems.length === 0) {
     return res.status(400).json({
@@ -180,8 +166,7 @@ router.post('/', (req, res) => {
     });
   }
 
-  // Check stock
-  const insufficientItems = cartItems.filter(item => item.quantity > item.product_stock);
+  const insufficientItems = findInsufficientItems(cartItems);
   if (insufficientItems.length > 0) {
     const names = insufficientItems.map(i => i.product_name).join(', ');
     return res.status(400).json({
@@ -202,55 +187,17 @@ router.post('/', (req, res) => {
     isExpress
   });
 
-  const orderId = uuidv4();
-  const orderNo = generateOrderNo();
-  const merchantTradeNo = orderNo.replace(/-/g, '');
-
-  // Transaction: create order, order items, deduct stock, clear cart
-  const createOrder = db.transaction(() => {
-    db.prepare(
-      `INSERT INTO orders (
-         id, order_no, user_id, recipient_name, recipient_email, recipient_address,
-         subtotal, shipping_fee, shipping_method, is_remote_area, is_express,
-         total_amount, merchant_trade_no
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(
-      orderId,
-      orderNo,
-      userId,
-      recipientName,
-      recipientEmail,
-      recipientAddress,
-      subtotal,
-      shipping.shippingFee,
-      shippingMethod,
-      isRemoteArea ? 1 : 0,
-      isExpress ? 1 : 0,
-      shipping.totalAmount,
-      merchantTradeNo
-    );
-
-    const insertItem = db.prepare(
-      `INSERT INTO order_items (id, order_id, product_id, product_name, product_price, quantity)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    );
-
-    const updateStock = db.prepare('UPDATE products SET stock = stock - ? WHERE id = ?');
-
-    for (const item of cartItems) {
-      insertItem.run(uuidv4(), orderId, item.product_id, item.product_name, item.product_price, item.quantity);
-      updateStock.run(item.quantity, item.product_id);
-    }
-
-    db.prepare('DELETE FROM cart_items WHERE user_id = ?').run(userId);
+  const orderId = createOrderFromCart({
+    userId,
+    recipient: { name: recipientName, email: recipientEmail, address: recipientAddress },
+    delivery: { method: shippingMethod, isRemoteArea, isExpress },
+    cartItems,
+    subtotal,
+    shipping
   });
 
-  createOrder();
-
-  const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
-  const orderItems = db.prepare(
-    'SELECT product_name, product_price, quantity FROM order_items WHERE order_id = ?'
-  ).all(orderId);
+  const order = findOrderById(orderId);
+  const orderItems = getOrderItemSummaries(orderId);
 
   res.status(201).json({
     data: {
@@ -318,11 +265,7 @@ router.post('/', (req, res) => {
  *                   type: string
  */
 router.get('/', (req, res) => {
-  const orders = db.prepare(
-    `SELECT id, order_no, subtotal, shipping_fee, shipping_method,
-            is_remote_area, is_express, total_amount, status, created_at
-     FROM orders WHERE user_id = ? ORDER BY created_at DESC`
-  ).all(req.user.userId);
+  const orders = listOrdersForUser(req.user.userId);
 
   res.json({
     data: { orders: orders.map(serializeOrder) },
@@ -407,13 +350,13 @@ router.get('/', (req, res) => {
  *         description: 訂單不存在
  */
 router.get('/:id', (req, res) => {
-  const order = db.prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?').get(req.params.id, req.user.userId);
+  const order = findOrderById(req.params.id);
 
   if (!order) {
     return res.status(404).json({ data: null, error: 'NOT_FOUND', message: '訂單不存在' });
   }
 
-  const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(order.id);
+  const items = getOrderItems(order.id);
 
   res.json({
     data: { ...serializeOrder(order), items },
@@ -502,7 +445,7 @@ router.patch('/:id/pay', testEnvOnly, (req, res) => {
     });
   }
 
-  const order = db.prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?').get(req.params.id, userId);
+  const order = findOrderForUser(req.params.id, userId);
   if (!order) {
     return res.status(404).json({ data: null, error: 'NOT_FOUND', message: '訂單不存在' });
   }
@@ -518,8 +461,8 @@ router.patch('/:id/pay', testEnvOnly, (req, res) => {
   const newStatus = actionMap[action];
   db.prepare("UPDATE orders SET status = ? WHERE id = ? AND status = 'pending'").run(newStatus, order.id);
 
-  const updated = db.prepare('SELECT * FROM orders WHERE id = ?').get(order.id);
-  const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(order.id);
+  const updated = findOrderById(order.id);
+  const items = getOrderItems(order.id);
 
   res.json({
     data: { ...serializeOrder(updated), items },
@@ -555,13 +498,13 @@ router.patch('/:id/pay', testEnvOnly, (req, res) => {
 router.post('/:id/check-payment', async (req, res) => {
   const userId = req.user.userId;
 
-  const order = db.prepare('SELECT * FROM orders WHERE id = ? AND user_id = ?').get(req.params.id, userId);
+  const order = findOrderForUser(req.params.id, userId);
   if (!order) {
     return res.status(404).json({ data: null, error: 'NOT_FOUND', message: '訂單不存在' });
   }
 
   if (order.status !== 'pending') {
-    const items = db.prepare('SELECT product_name, product_price, quantity FROM order_items WHERE order_id = ?').all(order.id);
+    const items = getOrderItemSummaries(order.id);
     return res.json({
       data: { ...serializeOrder(order), items },
       error: null,
@@ -586,8 +529,8 @@ router.post('/:id/check-payment', async (req, res) => {
       }
 
       db.prepare("UPDATE orders SET status = 'paid' WHERE id = ? AND status = 'pending'").run(order.id);
-      const updated = db.prepare('SELECT * FROM orders WHERE id = ?').get(order.id);
-      const items = db.prepare('SELECT product_name, product_price, quantity FROM order_items WHERE order_id = ?').all(order.id);
+      const updated = findOrderById(order.id);
+      const items = getOrderItemSummaries(order.id);
       return res.json({
         data: { ...serializeOrder(updated), items },
         error: null,
@@ -595,7 +538,7 @@ router.post('/:id/check-payment', async (req, res) => {
       });
     }
 
-    const items = db.prepare('SELECT product_name, product_price, quantity FROM order_items WHERE order_id = ?').all(order.id);
+    const items = getOrderItemSummaries(order.id);
     return res.json({
       data: { ...serializeOrder(order), items, ecpay_trade_status: result.TradeStatus },
       error: null,

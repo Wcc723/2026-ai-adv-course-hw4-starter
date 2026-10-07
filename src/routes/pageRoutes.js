@@ -1,6 +1,6 @@
 const express = require('express');
-const db = require('../database');
 const { buildAioFormHtml } = require('../utils/ecpay');
+const { findOrderById, getOrderItemSummaries } = require('../services/orderService');
 const router = express.Router();
 
 // Helper to render with front layout
@@ -59,14 +59,14 @@ router.get('/orders/:id', function (req, res) {
 
 // ECPay payment form page
 router.get('/ecpay/payment/:orderId', function (req, res) {
-  const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(req.params.orderId);
+  const order = findOrderById(req.params.orderId);
   if (!order) {
     return res.status(404).send('訂單不存在');
   }
   if (order.status !== 'pending') {
     return res.redirect('/orders/' + order.id);
   }
-  const items = db.prepare('SELECT product_name, product_price, quantity FROM order_items WHERE order_id = ?').all(order.id);
+  const items = getOrderItemSummaries(order.id);
   const html = buildAioFormHtml(order, items);
   res.type('text/html').send(html);
 });

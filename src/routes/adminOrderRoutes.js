@@ -2,18 +2,11 @@ const express = require('express');
 const db = require('../database');
 const authMiddleware = require('../middleware/authMiddleware');
 const adminMiddleware = require('../middleware/adminMiddleware');
+const { serializeOrder, findOrderById, getOrderItems } = require('../services/orderService');
 
 const router = express.Router();
 
 router.use(authMiddleware, adminMiddleware);
-
-function serializeOrder(order) {
-  return {
-    ...order,
-    is_remote_area: Boolean(order.is_remote_area),
-    is_express: Boolean(order.is_express)
-  };
-}
 
 /**
  * @openapi
@@ -216,13 +209,13 @@ router.get('/', (req, res) => {
  */
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
+  const order = findOrderById(id);
 
   if (!order) {
     return res.status(404).json({ data: null, error: 'NOT_FOUND', message: '訂單不存在' });
   }
 
-  const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(id);
+  const items = getOrderItems(id);
   const user = db.prepare('SELECT name, email FROM users WHERE id = ?').get(order.user_id);
 
   res.json({
