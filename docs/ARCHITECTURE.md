@@ -37,7 +37,8 @@
 │   │   ├── ecpay.js                # 綠界 ECPay 工具：CheckMacValue 簽章、URL 編碼、AIO 表單產生、QueryTradeInfo 查詢
 │   │   └── shipping.js             # 配送費用純邏輯：基本運費、免運門檻、偏遠/急件附加費
 │   ├── services/
-│   │   └── orderService.js         # 訂單查詢、序列化、訂單編號與建單 transaction（依賴資料庫）
+│   │   ├── orderService.js         # 訂單查詢、序列化、訂單編號與建單 transaction（依賴資料庫）
+│   │   └── paymentService.js       # 綠界交易結果判斷 isTradePaid()、標記已付款 markOrderPaid()
 │   └── routes/
 │       ├── authRoutes.js           # 認證路由：註冊、登入、個人資料
 │       ├── productRoutes.js        # 公開商品路由：列表（分頁）、詳情

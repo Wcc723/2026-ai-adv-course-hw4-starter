@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../database');
 const authMiddleware = require('../middleware/authMiddleware');
-const { queryTradeInfo, verifyCheckMacValue, ECPAY_CONFIG } = require('../utils/ecpay');
+const { queryTradeInfo } = require('../utils/ecpay');
 const { SHIPPING_METHODS, calculateShipping } = require('../utils/shipping');
 const {
   serializeOrder,
@@ -14,6 +14,7 @@ const {
   findInsufficientItems,
   createOrderFromCart
 } = require('../services/orderService');
+const { isTradePaid, markOrderPaid } = require('../services/paymentService');
 
 const router = express.Router();
 
@@ -519,16 +520,8 @@ router.post('/:id/check-payment', async (req, res) => {
   try {
     const result = await queryTradeInfo(order.merchant_trade_no);
 
-    if (result.TradeStatus === '1') {
-      // Verify the response is authentic and matches this order before marking it paid
-      const verified = verifyCheckMacValue(result, ECPAY_CONFIG.hashKey, ECPAY_CONFIG.hashIV)
-        && result.MerchantTradeNo === order.merchant_trade_no
-        && Number(result.TradeAmt) === order.total_amount;
-      if (!verified) {
-        throw new Error('QueryTradeInfo response verification failed');
-      }
-
-      db.prepare("UPDATE orders SET status = 'paid' WHERE id = ? AND status = 'pending'").run(order.id);
+    if (isTradePaid(order, result)) {
+      markOrderPaid(order.id);
       const updated = findOrderById(order.id);
       const items = getOrderItemSummaries(order.id);
       return res.json({
