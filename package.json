@@ -13,6 +13,7 @@
     "test:integration": "vitest run --config vitest.integration.config.js",
     "test:e2e": "playwright test --config playwright.config.js",
     "test:acceptance": "vitest run --config vitest.acceptance.config.js",
+    "hw4:review-pr": "node scripts/hw4-review-pr.js",
     "postman": "npm run openapi && node scripts/generate-postman.js"
   },
   "dependencies": {

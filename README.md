@@ -45,7 +45,7 @@ npm run start           # http://localhost:3001
 
 | 位置 | 用途 |
 |------|------|
-| `hw4-review-target` 分支 | 挑戰一的 Review 目標，從此分支開 PR 到 `main` |
+| `hw4-review-target` 分支 | 挑戰一的 Review 目標。執行 `npm run hw4:review-pr` 開 PR 到 `main`（Template 不保留分支歷史，無法直接從此分支開 PR） |
 | `tests/acceptance/` | 3 個 Issue 的驗收測試（**不得修改**） |
 
 3 個 Issue 的內容請見第四場作業說明的附錄，依 Issue Template 的欄位貼到你自己儲存庫的 GitHub Issue。

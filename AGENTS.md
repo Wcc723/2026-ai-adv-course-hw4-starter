@@ -14,6 +14,7 @@ npm run test:unit          # 執行 Unit/API Test
 npm run test:integration   # 執行結帳、DB、庫存、回滾與綠界 Integration Test
 npm run test:e2e           # 連已啟動的 3001 服務，執行綠界 Playwright E2E
 npm run test:acceptance    # 第四場 Issue 驗收測試；可加檔名：npm run test:acceptance -- coupon
+npm run hw4:review-pr      # 第四場挑戰一：以 hw4-review-target 的變更開 Review PR
 npm run openapi            # 從 JSDoc 生成 openapi.json
 npm run postman            # 重生 OpenAPI 與 Postman Collection
 ```
