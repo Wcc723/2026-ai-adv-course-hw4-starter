@@ -1,10 +1,48 @@
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+
+// The converter fills examples with Math.random values and its faker keeps a
+// reference from load time, so seed Math.random before requiring it. The same
+// openapi.json then always produces the same collection (no noisy diffs in PRs).
+function seededRandom(seed) {
+  let state = seed >>> 0;
+  return function next() {
+    state = (state + 0x6D2B79F5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+Math.random = seededRandom(20260407);
+
 const Converter = require('openapi-to-postmanv2');
 
 const projectRoot = path.resolve(__dirname, '..');
 const openapiPath = path.join(projectRoot, 'openapi.json');
 const outputPath = path.join(projectRoot, 'postman_collection.json');
+
+function stableId(...parts) {
+  const hex = crypto.createHash('sha1').update(parts.join('\u0000')).digest('hex');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
+
+// Replace the converter's random UUIDs with ids derived from each node's position
+function assignStableIds(collection) {
+  collection.info._postman_id = stableId('collection', collection.info.name || '');
+  function visit(node, trail) {
+    for (const [key, value] of Object.entries(node)) {
+      if (value && typeof value === 'object') {
+        visit(value, `${trail}/${key}`);
+      }
+    }
+    if (typeof node.id === 'string') {
+      node.id = stableId(trail, node.name || node.key || '');
+    }
+  }
+  visit(collection, '');
+}
 
 function convertOpenApi(spec) {
   return new Promise((resolve, reject) => {
@@ -188,6 +226,7 @@ async function main() {
   const collection = await convertOpenApi(spec);
   setCollectionVariables(collection);
   customizeRequests(collection, spec);
+  assignStableIds(collection);
   validateCollection(collection);
 
   fs.writeFileSync(outputPath, JSON.stringify(collection, null, 2) + '\n');
