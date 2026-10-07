@@ -104,7 +104,7 @@ router.get('/profile', authMiddleware, (req, res) => { ... });
 ```
 
 6. **撰寫測試**：在 `tests/` 下新增對應測試檔案（`*.test.js` 會自動被 `npm run test:unit` 收錄）。每個測試檔各自擁有獨立的記憶體 SQLite，所需資料須在檔內自行建立，不可依賴其他測試檔的執行順序
-7. **同步 API 文件**：執行 `npm run postman` 重生 `openapi.json` 與 `postman_collection.json`
+7. **同步 API 文件**：執行 `npm run openapi` 重生 `openapi.json`
 
 ## 新增 Middleware 步驟
 
@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS your_table (
 
 ### Postman 產物
 
-路由 JSDoc 變更後應執行 `npm run postman`，使 `openapi.json` 與 `postman_collection.json` 同步。不直接手改 Collection；變數、JWT 儲存腳本與認證規則均維護於 `scripts/generate-postman.js`。
+路由 JSDoc 變更後應執行 `npm run openapi`，使 `openapi.json` 同步。`postman_collection.json` 不進版控，需要時以 `npm run postman` 產生（匯入方式見 [TESTING.md](./TESTING.md#postman-collection)）。不直接手改 Collection；變數、JWT 儲存腳本與認證規則均維護於 `scripts/generate-postman.js`。
 
 ## 計畫歸檔流程
 

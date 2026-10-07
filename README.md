@@ -41,6 +41,8 @@ cp .env.example .env    # 至少設定 JWT_SECRET
 npm run start           # http://localhost:3001
 ```
 
+要用 Postman 測試 API 時，執行 `npm run postman` 產生 `postman_collection.json` 再匯入（此檔不進版控），步驟見 [docs/TESTING.md](./docs/TESTING.md#postman-collection)。
+
 ## 第四場作業素材
 
 | 位置 | 用途 |

@@ -16,7 +16,7 @@ npm run test:e2e           # 連已啟動的 3001 服務，執行綠界 Playwrig
 npm run test:acceptance    # 第四場 Issue 驗收測試；可加檔名：npm run test:acceptance -- coupon
 npm run hw4:review-pr      # 第四場挑戰一：以 hw4-review-target 的變更開 Review PR
 npm run openapi            # 從 JSDoc 生成 openapi.json
-npm run postman            # 重生 OpenAPI 與 Postman Collection
+npm run postman            # 重生 OpenAPI 並產生 Postman Collection（不進版控）
 ```
 
 ## 關鍵規則

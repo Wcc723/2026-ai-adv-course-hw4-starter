@@ -22,7 +22,7 @@ npm run test:integration
 # 已另行啟動 http://localhost:3001 後，執行真實付款 E2E
 npm run test:e2e
 
-# 重生 openapi.json 與 postman_collection.json
+# 重生 openapi.json，並產生 postman_collection.json（不進版控）
 npm run postman
 ```
 
@@ -75,7 +75,15 @@ E2E 預設使用本機 Google Chrome；可以 `E2E_BASE_URL`、`E2E_ADMIN_EMAIL`
 
 ## Postman Collection
 
-`npm run postman` 會先執行現有 `generate-openapi.js`，再由 `scripts/generate-postman.js` 產生根目錄 `postman_collection.json`。產物具備：
+`postman_collection.json` 不進版控（已列入 `.gitignore`），需要用 Postman 測試 API 時再自行產生：
+
+1. 執行 `npm run postman`，在專案根目錄產生 `postman_collection.json`。
+2. 在 Postman 點選 **Import**，選擇該檔案匯入。
+3. 先啟動伺服器（`npm run start`），再執行 **Auth › 登入**，JWT 會自動存入 `token` 變數，之後需要認證的 API 可直接送出。
+
+路由 JSDoc 變更後，重新執行 `npm run postman` 並再匯入一次即可。
+
+`npm run postman` 會先執行現有 `generate-openapi.js`，再由 `scripts/generate-postman.js` 產生 `postman_collection.json`。產物具備：
 
 - `baseUrl` 預設 `http://localhost:3001`，並含 `token`、`sessionId` collection variables。
 - 所有 request URL 使用 `{{baseUrl}}`。

@@ -52,7 +52,7 @@ npm run openapi
 # 8. 伺服器已於 3001 啟動時，執行真實付款 E2E
 npm run test:e2e
 
-# 9. 重生 OpenAPI 與 Postman Collection
+# 9. 產生 Postman Collection（不進版控，匯入方式見 TESTING.md）
 npm run postman
 ```
 
@@ -85,7 +85,7 @@ npm run postman
 | `npm run test:e2e` | 對已啟動的 3001 服務執行綠界網路 ATM 實測（1 項） |
 | `npm run test:acceptance` | 第四場 3 個 Issue 的驗收測試；可加檔名篩選，如 `npm run test:acceptance -- coupon` |
 | `npm run openapi` | 生成 openapi.json |
-| `npm run postman` | 重生 openapi.json 與 postman_collection.json |
+| `npm run postman` | 重生 openapi.json，並產生 postman_collection.json（不進版控） |
 
 Vitest 與 Integration Test 皆使用記憶體 SQLite，不會修改專案根目錄的 `database.sqlite`。Integration Test 中的綠界回應使用 mock。Playwright E2E 則刻意操作已啟動的開發環境、實際寫入訂單及扣庫存，並連接綠界 staging；測試不會自行啟動伺服器。
 

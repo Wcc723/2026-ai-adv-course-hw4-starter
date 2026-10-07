@@ -13,7 +13,7 @@
 ├── swagger-config.js               # Swagger/OpenAPI 設定（OpenAPI 3.0.3）
 ├── generate-openapi.js             # 從 JSDoc 註解生成 openapi.json
 ├── openapi.json                     # 最新 API 規格
-├── postman_collection.json          # 可提交的 Postman Collection 2.1
+├── postman_collection.json          # Postman Collection 2.1（npm run postman 產生，不進版控）
 ├── scripts/
 │   ├── generate-postman.js         # OpenAPI 轉換、JWT/session 客製與產物驗證
 │   └── hw4-review-pr.js            # 第四場挑戰一：以 hw4-review-target 的變更開 Review PR
