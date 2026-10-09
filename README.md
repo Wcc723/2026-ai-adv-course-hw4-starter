@@ -7,15 +7,13 @@ Node.js + Express + SQLite + EJS + Tailwind CSS 全端電商專案，為第三�
 ### 1. 用 Template 建立自己的儲存庫
 
 1. 在本儲存庫頁面點選 **Use this template** → **Create a new repository**
-2. **勾選「Include all branches」**，確保 `hw4-review-target` 分支一併帶入
-3. 之後所有的 PR、Issue、標籤與 Loop 都在你自己的儲存庫中進行，不要對本儲存庫開 PR 或 Issue
+2. 之後所有的 Issue、標籤、PR 與 Loop 都在你自己的儲存庫中進行，不要對本儲存庫開 Issue 或 PR
 
-建立完成後，確認分支有帶進來：
+建立完成後，把自己的儲存庫 clone 到本機：
 
 ```bash
 git clone <你的儲存庫網址>
 cd <專案資料夾>
-git branch -a   # 應看到 remotes/origin/hw4-review-target
 ```
 
 ### 2. 安裝並登入 GitHub CLI
@@ -47,10 +45,9 @@ npm run start           # http://localhost:3001
 
 | 位置 | 用途 |
 |------|------|
-| `hw4-review-target` 分支 | 挑戰一的 Review 目標。執行 `npm run hw4:review-pr` 開 PR 到 `main`（Template 不保留分支歷史，無法直接從此分支開 PR） |
 | `tests/acceptance/` | 3 個 Issue 的驗收測試（**不得修改**） |
 
-3 個 Issue 的內容請見第四場作業說明的附錄，依 Issue Template 的欄位貼到你自己儲存庫的 GitHub Issue。
+3 個 Issue 的標題與內容請見第四場作業說明的附錄，直接複製貼到你自己儲存庫的 GitHub Issue。
 
 ## 測試指令
 

@@ -4,10 +4,9 @@
 
 ## [Unreleased]
 
-### Added
-- `npm run hw4:review-pr`（`scripts/hw4-review-pr.js`）：以 `hw4-review-target` 的變更建立挑戰一的 Review PR。用 Template 建立的儲存庫不保留分支歷史，無法直接從該分支開 PR
-
 ### Changed
+- 抽出 `src/services/orderService.js`（訂單查詢、序列化與建單 transaction）與 `src/services/paymentService.js`（QueryTradeInfo 結果判斷與付款狀態更新）
+- 新增 `src/utils/validators.js` 統一路由輸入驗證；Shipping 模組改以規則表描述，單元測試改為 table-driven
 - `postman_collection.json` 不進版控（列入 `.gitignore`），需要時以 `npm run postman` 產生；路由變更後只需以 `npm run openapi` 同步 `openapi.json`。`docs/TESTING.md` 補上產生與匯入步驟
 - `scripts/generate-postman.js` 產生結果固定，同一份 OpenAPI 重跑不再出現亂數差異
 

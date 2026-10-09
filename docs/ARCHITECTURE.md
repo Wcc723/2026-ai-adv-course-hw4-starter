@@ -15,8 +15,7 @@
 ├── openapi.json                     # 最新 API 規格
 ├── postman_collection.json          # Postman Collection 2.1（npm run postman 產生，不進版控）
 ├── scripts/
-│   ├── generate-postman.js         # OpenAPI 轉換、JWT/session 客製與產物驗證
-│   └── hw4-review-pr.js            # 第四場挑戰一：以 hw4-review-target 的變更開 Review PR
+│   └── generate-postman.js         # OpenAPI 轉換、JWT/session 客製與產物驗證
 ├── database.sqlite                 # 開發/生產 SQLite（首次啟動自動建立，不進版控；測試不會使用或修改）
 ├── .env                            # 環境變數（不進版控）
 ├── .env.example                    # 環境變數範本
