@@ -80,7 +80,7 @@ npm run postman
 | `npm run dev:css` | Tailwind CSS watch 模式 |
 | `npm run css:build` | 編譯並壓縮 CSS |
 | `npm run test` | 同 `npm run test:unit` |
-| `npm run test:unit` | 執行單元與 API 測試（51 項） |
+| `npm run test:unit` | 執行單元與 API 測試（55 項） |
 | `npm run test:integration` | 執行結帳、DB、庫存、回滾與綠界整合測試（10 項） |
 | `npm run test:e2e` | 對已啟動的 3001 服務執行綠界網路 ATM 實測（1 項） |
 | `npm run test:acceptance` | 第四場 3 個 Issue 的驗收測試；可加檔名篩選，如 `npm run test:acceptance -- coupon` |

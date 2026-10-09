@@ -96,6 +96,7 @@
     ├── setup.js                    # API 測試輔助：getAdminToken()、registerUser()
     ├── setup/
     │   ├── testEnvironment.js       # 強制 NODE_ENV=test 與記憶體 SQLite
+    │   ├── testServer.js            # supertest 用的測試伺服器（綁 127.0.0.1）
     │   └── integrationGlobalSetup.mjs # 原 database.sqlite 雜湊守衛
     ├── integration/
     │   ├── helpers.js               # fixture、DB reset 與查詢輔助
@@ -108,7 +109,7 @@
     │   ├── coupon.test.js           # Issue A：結帳優惠碼
     │   ├── cancel-order.test.js     # Issue B：取消未付款訂單並回補庫存
     │   └── order-filter.test.js     # Issue C：我的訂單篩選與分頁
-    ├── shipping.test.js            # Shipping 模組單元測試（9 項）
+    ├── shipping.test.js            # Shipping 模組單元測試（13 項）
     ├── auth.test.js                # 認證 API 測試
     ├── products.test.js            # 商品 API 測試
     ├── cart.test.js                # 購物車 API 測試

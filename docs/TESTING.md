@@ -143,7 +143,7 @@ Integration Test 中有兩層防護：
 | `tests/adminProducts.test.js` | 後台商品 CRUD 與權限、刪除仍在購物車中的商品、名稱驗證 |
 | `tests/adminOrders.test.js` | 後台訂單列表、詳情與篩選 |
 
-`tests/setup.js` 提供 `app`、`request`、`getAdminToken()` 與 `registerUser()` 等共用輔助。
+`tests/setup.js` 提供 `app`、`request`、`getAdminToken()` 與 `registerUser()` 等共用輔助。其中 `app` 來自 `tests/setup/testServer.js`，是已在 `127.0.0.1` 啟動的測試伺服器；新增 API 測試時請沿用，不要直接 `require('../app')`，否則在 macOS 上可能連到同埠的其他程式而隨機失敗。
 
 ## Integration Test
 

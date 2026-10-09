@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../app');
+const app = require('./setup/testServer');
 
 /**
  * Login with the seed admin account and return the JWT token.

@@ -177,6 +177,7 @@ CREATE TABLE IF NOT EXISTS your_table (
 ## 測試隔離規範
 
 - 所有 Vitest 設定必須先載入 `tests/setup/testEnvironment.js`，再 import `app.js` 或 `src/database.js`。
+- API 測試一律從 `tests/setup.js`（或 `tests/setup/testServer.js`）取得 `app` 交給 supertest，不要直接 `require('../app')`：supertest 自開的臨時伺服器在 macOS 上可能連到同埠的其他程式，造成測試隨機失敗。
 - 自動測試必須使用 `DATABASE_PATH=:memory:` 或測試專屬臨時 SQLite，不得寫入專案 `database.sqlite`。
 - Integration Test 每項皆應自行建立 fixture，並依 foreign key 順序清理資料。
 - 外部服務（如 QueryTradeInfo）必須 mock，不得將真實網路成功視為測試通過條件。

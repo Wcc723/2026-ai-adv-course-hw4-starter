@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../../app');
+const app = require('../setup/testServer');
 const {
   ECPAY_CONFIG,
   generateCheckMacValue,

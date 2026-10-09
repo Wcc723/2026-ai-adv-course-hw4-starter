@@ -3,7 +3,7 @@
 // internal function names or table structures. Every test creates its own
 // member and products, so tests never share data.
 const request = require('supertest');
-const app = require('../../app');
+const app = require('../setup/testServer');
 
 const ADMIN = { email: 'admin@hexschool.com', password: '12345678' };
 
